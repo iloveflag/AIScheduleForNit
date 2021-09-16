@@ -2,7 +2,7 @@ function scheduleHtmlParser(html) {
     var courseInfos_json = [];
     var $ = cheerio.load(html, { decodeEntities: false });
     $(".oldschedule #Table1 tr td").each(function(td) { //行读取模式,遍历传入所有表格中最里面的所有td标签
-        // console.log($(this).html()) //debug
+//         console.log($(this).html()) //debug
         if (td > 1) {
             courseInfos = getCourseInfos($(this).html())
             if (JSON.stringify(courseInfos) !== '{}') { //判断这个td是否有课程信息,有的话往courseInfos_json写入json
@@ -27,7 +27,7 @@ function scheduleHtmlParser(html) {
         { "section": 12, "startTime": "20:10", "endTime": "20:55" },
     ]
 
-
+    console.log(courseInfos_json)
     var conss = new Object();
     conss.courseInfos = courseInfos_json;
     conss.sectionTimes = sectionTimes_json;
@@ -79,7 +79,14 @@ function getCourseInfos(td) {
         courseInfos.teacher = teacher;
         courseInfos.weeks = weekArray;
         courseInfos.day = day;
-        courseInfos.sections = [{ "section": parseInt(info[1][3]) }, { "section": parseInt(info[1][5]) }] //都是两节课的,不去正则了
+        sections=[]
+        section=info[1].match(/第.*节/g)
+        for(i=parseInt(section[0][1]);i<=parseInt(section[0].substr(-2,1));i++){
+            s=new Object();
+            s.section=parseInt(i)
+            sections.push(s)
+        }
+        courseInfos.sections=sections
     }
     return courseInfos
 }
